@@ -4,6 +4,8 @@ Security skills for coding agents that build web apps with Supabase, Firebase, N
 
 Plain Markdown, no runtime, Apache-2.0.
 
+> Built by [**Shippable**](https://shippable.dev), the free security check for AI-built apps that runs while you build (CLI and your agent), on every pull request, and on the live app, with proof for every finding. The skills work on their own; where a check is mechanical, they hand it to Shippable.
+
 ## Why these exist
 
 We ran static security checks on about 25,000 public GitHub repos built with Lovable, Bolt, v0, Replit and Cursor. Between 18% and 51% of each builder's repos shipped at least one issue, and up to 20% shipped a critical one. The same few mistakes kept showing up:
@@ -50,7 +52,7 @@ Pick one with `--skill supabase-rls`, install for your user with `-g`, or list t
 **Make them load every time.** Agents pick skills from their descriptions, and in the middle of a build task they sometimes skip one. One line in your `CLAUDE.md` or `AGENTS.md` fixes that:
 
 ```md
-Before writing database, auth, payment, webhook or other server code, load the matching security skill (supabase-rls, secrets-hygiene, secure-endpoints). Before calling the app ready, run pre-launch-security.
+Before writing database, auth, payment, webhook or other server code, load the matching security skill (supabase-rls, secrets-hygiene, secure-endpoints). Before calling a feature done, run `npx -y shippable-dev scan localhost:<port> --no-open` and fix every critical and high finding. Before calling the app ready, run pre-launch-security.
 ```
 
 Prefer the scanner as a tool your agent calls directly? Install the [Shippable MCP server or Claude Code plugin](https://shippable.dev/mcp).
@@ -79,4 +81,25 @@ The `security-audit` skill borrows its coverage ledger, independent disprove pas
 
 Found a fix that's wrong, a trap we missed, or a stack we should cover? Open an issue or a PR. Security fixes are only accepted with a source (vendor docs, a CVE, a reproducible case).
 
-Made by [Shippable](https://shippable.dev). Got an app built with AI? [Check it for leaks](https://shippable.dev): free and read-only.
+## Shippable in your workflow
+
+The skills teach your agent what to write. [Shippable](https://shippable.dev) checks what actually got built, at every stage, read-only, with proof for each finding (the rows a stranger could read, the key in your JavaScript) and a fix to paste back into your AI tool.
+
+**While you build.** Scan your dev server and project folder, no account needed:
+
+```sh
+npx -y shippable-dev scan localhost:5173
+```
+
+Or give your agent the tools so it checks its own work: `claude mcp add shippable -- npx -y shippable-dev mcp` (Cursor, VS Code and others: [shippable.dev/mcp](https://shippable.dev/mcp)). With the [`AGENTS.md` line from Install](#install), it won't call a feature done until the scan is clean.
+
+**On every pull request.** The [Shippable GitHub Action](https://github.com/Egarter/shippable-action) runs the same checks in CI and fails the job on a critical or high finding:
+
+```yaml
+- uses: Egarter/shippable-action@v1
+  with:
+    start: npm run dev
+    url: localhost:5173
+```
+
+**After you deploy.** Code and production drift apart: a table created in the dashboard, a key that ended up in the build, a file your host serves. Paste your URL at [shippable.dev](https://shippable.dev) to check the live app from the outside. Your first app is free, with unlimited scans, watch mode that emails you when something new appears, and a "Checked by Shippable" badge.
